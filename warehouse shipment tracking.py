@@ -8,51 +8,46 @@ pending_shipments = deque()
 
 # List for tracking inventory
 inventory = []
-
-# Function to add an item to inventory
-def add_to_inventory(item):
-    inventory.append(item)
-    print(f"Added '{item}' to inventory. Current inventory: {inventory}")
-
-# Function to process a shipment
-def process_shipment(item):
-    if item in inventory:
-        inventory.remove(item)
-        undo_stack.append(item)
-        print(f"Shipped '{item}'. Inventory after shipment: {inventory}")
-    else:
-        print(f"Item '{item}' not found in inventory. Cannot ship.")
-
-# Function to undo the last shipment
-def undo_last_shipment():
-    if undo_stack:
-        last_shipped_item = undo_stack.pop()
-        inventory.append(last_shipped_item)
-        print(f"Undid shipment of '{last_shipped_item}'. Inventory: {inventory}")
-    else:
-        print("No shipments to undo.")
-
-# Function to add a pending shipment to the queue
 def add_pending_shipment(item):
     pending_shipments.append(item)
-    print(f"Added '{item}' to pending shipments. Pending shipments: {list(pending_shipments)}")
-
-# Function to process the next pending shipment
-def process_next_pending():
+    print(f"Added {item} to pending shipments.")
+def process_shipment():
     if pending_shipments:
-        next_item = pending_shipments.popleft()
-        process_shipment(next_item)
-        print(f"Processed next pending shipment of '{next_item}'. Pending shipments: {list(pending_shipments)}")
+        shipment = pending_shipments.popleft()
+        inventory.append(shipment)
+        undo_stack.append(shipment)  # Push to undo stack
+        print(f"Processed shipment: {shipment}")
     else:
         print("No pending shipments to process.")
+def undo_last_shipment():
+    if undo_stack:
+        last_shipment = undo_stack.pop()
+        if last_shipment in inventory:
+            inventory.remove(last_shipment)
+        print(f"Undone shipment: {last_shipment}")
+    else:
+        print("No shipments to undo.")
+def check_inventory():
+    print("Current Inventory:", inventory)
+    
+    
+    
 
-# Example usage:
-add_to_inventory("Rice")
-add_to_inventory("Maize flour")
-process_shipment("Rice")
-undo_last_shipment()
-add_pending_shipment("Sugar")
-add_pending_shipment("Salt")
-process_next_pending()
 
-        
+#imprementation /example
+# Add shipments to pending queue
+#add_pending_shipment("item1")
+#add_pending_shipment("item2")
+while True:
+    product = input("Enter new item or click q to quit/ if you want to undo enter - :\n")
+    if(product == 'q'):
+        break
+    elif(product == '-'):
+        # Undo the last shipment
+        undo_last_shipment()
+        # Check the inventory after undoing
+        check_inventory()
+    else:
+        add_pending_shipment(product)
+        process_shipment()
+        check_inventory()
